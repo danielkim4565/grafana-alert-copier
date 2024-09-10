@@ -87,7 +87,7 @@ do
     
     source_alert_title="$(echo "$source_alert" | jq -r '.title')"
     source_folder_uid="$(echo "$source_alert" | jq -r '.folderUID')"
-    source_folder_title="$(echo "$source_folders" | jq -r --arg folder_uid "$source_folder_uid" '.[] | select(.uid==$folder_uid) | .title')"
+    source_folder_title="$(echo "$source_folders" | jq -r --arg folder_uid "$source_folder_uid" '.[] | select(.uid==$folder_uid) | .title' | xargs)"
 
     # Ensuring target_folder_uid is retrieved correctly
     target_folder_uid="$(echo "$target_folders" | jq -r --arg folder_title "$source_folder_title" '.[] | select(.title == $folder_title) | .uid' | xargs)"
@@ -96,9 +96,9 @@ do
     source_alert_export="$(echo "$source_alert" | jq -r -c 'del(.uid, .updated) | .folderUID=$new_folder_uid' --arg new_folder_uid "$target_folder_uid")"
 
     # Fetching existing target_alert_uid if it exists
-    target_alert_uid="$(echo "$target_alerts" | jq -r --arg folder_uid "$source_folder_uid" --arg alert_title "$source_alert_title" '.[] | select(.title == $alert_title and .folderUID == $folder_uid) | .uid' | xargs)"
+    target_alert_uid="$(echo "$target_alerts" | jq -r --arg folder_uid "$target_folder_uid" --arg alert_title "$source_alert_title" '.[] | select(.title == $alert_title and .folderUID == $folder_uid) | .uid' | xargs)"
 
-    #echo "$source_alert_export"
+    echo "$target_alert_uid"
 
     # Conditional deletion of the existing alert if its UID is found
     if [ "$target_alert_uid" != "null" ]; then
