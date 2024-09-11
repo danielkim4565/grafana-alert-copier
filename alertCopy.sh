@@ -73,6 +73,7 @@ if [ -n "$filtered_contact_points" ]; then
     done <<< "$filtered_contact_points"
 fi
 
+
 echo "$source_contact_points" | jq -r -c 'del(.[] | select(.name == "email receiver")) | .[]' | while read -r source_contact_point;
 do  
     source_contact_point_name=$(echo "$source_contact_point" | jq -r '.name' | xargs)
@@ -94,6 +95,21 @@ do
             "https://$target_address/grafana/api/v1/provisioning/contact-points/${target_contact_name_to_uid[$source_contact_point_name]}"
     fi
 done
+
+source_notification_policies_export="$(curl -s \
+    -H 'Accept: application/json' \
+    -H "Authorization: Bearer $source_bearer" \
+    "https://$source_address/grafana/api/v1/provisioning/policies" )"
+
+curl -s \
+    --request "PUT"\
+    -d "$source_notification_policies_export"\
+    -H 'Content-Type: application/json' \
+    -H 'Accept: application/json' \
+    -H 'X-Disable-Provenance: true' \
+    -H "Authorization: Bearer $target_bearer" \
+    "https://$target_address/grafana/api/v1/provisioning/policies" 
+
 
 # Get all folders from source Grafana
 source_folders="$(curl -s \
