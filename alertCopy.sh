@@ -100,11 +100,6 @@ source_folders="$(curl -s \
     -H "Authorization: Bearer $source_bearer" \
     "https://$source_address/grafana/api/folders")"
 
-# Get all the target folders
-target_folders="$(curl -s \
-    -H "Authorization: Bearer $target_bearer" \
-    "https://$target_address/grafana/api/folders")"
-
 echo "$source_folders" | jq -r -c '.[]' | while read -r source_folder;
 do  
     source_folder_title=$(echo "$source_folder" | jq -r '.title' | xargs)
