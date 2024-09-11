@@ -67,8 +67,8 @@ if [ -n "$filtered_contact_points" ]; then
     do 
         name="$(echo "$target_contact_point" | jq -r '.name' | xargs)"
         uid="$(echo "$target_contact_point" | jq -r '.uid' | xargs)"
-        echo $name
-        echo $uid
+        # echo $name
+        # echo $uid
         target_contact_name_to_uid[$name]=$uid
     done <<< "$filtered_contact_points"
 fi
@@ -115,6 +115,11 @@ do
         -H "Authorization: Bearer $target_bearer" \
         "https://$target_address/grafana/api/folders"
 done
+
+# Get all the target folders
+target_folders="$(curl -s \
+    -H "Authorization: Bearer $target_bearer" \
+    "https://$target_address/grafana/api/folders")"
 
 source_alerts="$(curl -s \
     -H "Authorization: Bearer $source_bearer" \
