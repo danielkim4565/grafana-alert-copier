@@ -57,13 +57,13 @@ copy_contact_points() {
     # Fetch contact points from source Grafana instance
     source_contact_points="$(curl -s \
         -H "Authorization: Bearer $source_bearer" \
-        "https://$source_address/grafana/api/v1/provisioning/contact-points"
+        "https://$source_address/api/v1/provisioning/contact-points"
     )"
 
     # Fetch contact points from target Grafana instance
     target_contact_points="$(curl -s \
         -H "Authorization: Bearer $target_bearer" \
-        "https://$target_address/grafana/api/v1/provisioning/contact-points"
+        "https://$target_address/api/v1/provisioning/contact-points"
     )"
 
     # Declare an associative array to map contact point names to their UIDs in the target instance
@@ -93,16 +93,16 @@ copy_contact_points() {
             -d "$source_contact_point_export" \
             -H 'X-Disable-Provenance: true' \
             -H 'Content-Type: application/json' \
-            -H 'Accept: application/json' \
+            cd .. \
             -H "Authorization: Bearer $target_bearer" \
-            "https://$target_address/grafana/api/v1/provisioning/contact-points"
+            "https://$target_address/api/v1/provisioning/contact-points"
         
         # If the source contact point already exists in the target instance, delete it.(Now, the contact point integration that was added replaces the orginal contact point)
         if [[ -v "target_contact_name_to_uid[$source_contact_point_name]" ]]; then
             curl -s \
                 --request "DELETE" \
                 -H "Authorization: Bearer $target_bearer" \
-                "https://$target_address/grafana/api/v1/provisioning/contact-points/${target_contact_name_to_uid[$source_contact_point_name]}"
+                "https://$target_address/api/v1/provisioning/contact-points/${target_contact_name_to_uid[$source_contact_point_name]}"
         fi
     done
 }
@@ -119,7 +119,7 @@ copy_notification_policies() {
     source_notification_policies_export="$(curl -s \
         -H 'Accept: application/json' \
         -H "Authorization: Bearer $source_bearer" \
-        "https://$source_address/grafana/api/v1/provisioning/policies" )"
+        "https://$source_address/api/v1/provisioning/policies" )"
 
     # Push the fetched notification policy tree to the target Grafana instance. It replaces the notification policy tree in the target instance.
     curl -s \
@@ -129,7 +129,7 @@ copy_notification_policies() {
         -H 'Accept: application/json' \
         -H 'X-Disable-Provenance: true' \
         -H "Authorization: Bearer $target_bearer" \
-        "https://$target_address/grafana/api/v1/provisioning/policies"
+        "https://$target_address/api/v1/provisioning/policies"
 }
 
 #Function to copy folders from source instance to target instance. Adds folders that exist in the source instance but not in the target instance. Keeps folders that only exists in the target instance.
@@ -143,7 +143,7 @@ copy_folders() {
     # Fetch all folders from source Grafana instance
     source_folders="$(curl -s \
         -H "Authorization: Bearer $source_bearer" \
-        "https://$source_address/grafana/api/folders")"
+        "https://$source_address/api/folders")"
 
     # For each folder in the source Grafana instance
     echo "$source_folders" | jq -r -c '.[]' | while read -r source_folder;
@@ -157,7 +157,7 @@ copy_folders() {
             -H 'Content-Type: application/json' \
             -H 'Accept: application/json' \
             -H "Authorization: Bearer $target_bearer" \
-            "https://$target_address/grafana/api/folders"
+            "https://$target_address/api/folders"
     done
 }
 
@@ -172,17 +172,17 @@ copy_alerts() {
     # Fetch all folders from target Grafana instance
     target_folders="$(curl -s \
         -H "Authorization: Bearer $target_bearer" \
-        "https://$target_address/grafana/api/folders")"
+        "https://$target_address/api/folders")"
 
     # Fetch all alert rules from source Grafana instance
     source_alerts="$(curl -s \
         -H "Authorization: Bearer $source_bearer" \
-        "https://$source_address/grafana/api/v1/provisioning/alert-rules")"
+        "https://$source_address/api/v1/provisioning/alert-rules")"
 
     # Fetch all alert rules from target Grafana instance
     target_alerts="$(curl -s \
         -H "Authorization: Bearer $target_bearer" \
-        "https://$target_address/grafana/api/v1/provisioning/alert-rules")"
+        "https://$target_address/api/v1/provisioning/alert-rules")"
 
     # For each alert rule in the source Grafana instance
     echo "$source_alerts" | jq -r -c '.[]' | while read -r source_alert;
@@ -208,7 +208,7 @@ copy_alerts() {
             curl -s \
                 --request "DELETE" \
                 -H "Authorization: Bearer $target_bearer" \
-                "https://$target_address/grafana/api/v1/provisioning/alert-rules/$target_alert_uid"
+                "https://$target_address/api/v1/provisioning/alert-rules/$target_alert_uid"
         fi
 
         # Import the modified alert rule into the target Grafana instance
@@ -218,7 +218,7 @@ copy_alerts() {
             -H 'Content-Type: application/json' \
             -H 'Accept: application/json' \
             -H "Authorization: Bearer $target_bearer" \
-            "https://$target_address/grafana/api/v1/provisioning/alert-rules"
+            "https://$target_address/api/v1/provisioning/alert-rules"
     done
 }
 

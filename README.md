@@ -67,7 +67,7 @@ You can pass these arguments to the script in the following way:
 ## Example
 
 ```shell
-./alertCopy.sh -S glsa_exampleGlMvU7 -s vfl-069.engage.sas.com -T glsa_exampleGlMvU7 -t vfl-069.engage.sas.com
+./alertCopy.sh -S glsa_exampleGlMvU7 -s example.com/grafana -T glsa_exampleGlMvU7 -t example.com/grafana
 ```
 
 ## Note
