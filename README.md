@@ -63,6 +63,9 @@ You can pass these arguments to the script in the following way:
 ```shell
 ./alertCopy.sh -S <source_bearer> -s <source_address> -T <target_bearer> -t <target_address>
 ```
+### Notes
+
+- This script was tested with Grafana version 11.x. It may not work with earlier versions such as 8.x.
 
 ## Example
 
