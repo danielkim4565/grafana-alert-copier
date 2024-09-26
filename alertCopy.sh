@@ -46,7 +46,7 @@ if [ "$t_provided" -eq 0 ] || [ "$T_provided" -eq 0 ] || [ "$s_provided" -eq 0 ]
     usage
 fi
 
-verify_token() {
+verify_token_and_url() {
     local source_bearer=$1
     local source_address=$2
     local target_bearer=$3
@@ -245,7 +245,7 @@ copy_alerts() {
     done
 }
 
-verify_token "$source_bearer" "$source_address" "$target_bearer" "$target_address"
+verify_token_and_url "$source_bearer" "$source_address" "$target_bearer" "$target_address"
 copy_contact_points "$source_bearer" "$source_address" "$target_bearer" "$target_address"
 copy_notification_policies "$source_bearer" "$source_address" "$target_bearer" "$target_address"
 copy_folders "$source_bearer" "$source_address" "$target_bearer" "$target_address"
