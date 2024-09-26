@@ -46,6 +46,29 @@ if [ "$t_provided" -eq 0 ] || [ "$T_provided" -eq 0 ] || [ "$s_provided" -eq 0 ]
     usage
 fi
 
+verify_token_and_url() {
+    local source_bearer=$1
+    local source_address=$2
+    local target_bearer=$3
+    local target_address=$4
+    source_response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $source_bearer" "https://$source_address/api/v1/provisioning/contact-points")
+    target_response=$(curl -s -o /dev/null -w "%{http_code}" -H "Authorization: Bearer $target_bearer" "https://$target_address/api/v1/provisioning/contact-points")
+    if [ "$source_response" == 404 ]; then
+        echo "404 Error: Source URL is incorrect."
+        exit 1
+    elif [ "$source_response" == 401 ]; then
+        echo "401 Error: Source token is incorrect."
+        exit 1
+    fi
+    if [ "$target_response" == 404 ]; then
+        echo "404 Error: Target URL is incorrect."
+        exit 1
+    elif [ "$target_response" == 401 ]; then
+        echo "401 Error: Target token is incorrect."
+        exit 1
+    fi
+}
+
 #Function to copy contact points from source instance to target instance. Adds contact points that exist in the source instance but not in the target instance. Keeps contact points that only exists in the target instance. If a contact point with the same name already exists in the target instance, it will be replaced by the source instance contact point.
 copy_contact_points() {
     # Define local variables for source and target Grafana instances
@@ -222,7 +245,7 @@ copy_alerts() {
     done
 }
 
-
+verify_token_and_url "$source_bearer" "$source_address" "$target_bearer" "$target_address"
 copy_contact_points "$source_bearer" "$source_address" "$target_bearer" "$target_address"
 copy_notification_policies "$source_bearer" "$source_address" "$target_bearer" "$target_address"
 copy_folders "$source_bearer" "$source_address" "$target_bearer" "$target_address"
